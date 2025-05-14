@@ -1,0 +1,12 @@
+---
+- name: Install and configure Kea DHCP
+  hosts: serverPrincipal
+  become: yes
+  vars:
+    db_name: kea_lease_db
+    db_user: kea
+    db_pass: admin
+    kea_conf_template: kea-dhcp4.conf.j2
+  roles:
+    - dhcp
+
