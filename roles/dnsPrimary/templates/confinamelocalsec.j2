@@ -1,6 +1,6 @@
 key "tsig-key" {
     algorithm hmac-sha256;
-    secret "{{ hostvars['192.168.57.10']['tsig_key_clean'] }}";
+    secret "{{ hostvars['serverPrincipal']['tsig_key_clean'] }}";
 };
 
 {% for zone in zones %}

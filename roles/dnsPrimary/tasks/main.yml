@@ -120,7 +120,7 @@
     - name: Extraer clave TSIG limpia
       set_fact:
         tsig_key_clean: "{{ (tsig_key.stdout | regex_findall('secret \"(.+?)\";'))[0] }}"
-      when: inventory_hostname == '192.168.57.10'
+      when: inventory_hostname == 'serverPrincipal'
 
     - name: Configurar zonas en named.conf.local
       template:
