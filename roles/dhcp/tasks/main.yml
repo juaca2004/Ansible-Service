@@ -62,11 +62,18 @@
         enabled: yes
         state: restarted
 
+    - name: Verificar si la base de datos kea_lease_db está vacía
+      command: >
+        mysql -u {{ db_user }} -p{{ db_pass }} -N -e
+        "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{{ db_name }}';"
+      register: tabla_check
+      changed_when: false
+
     - name: Ejecutar kea-admin db-init
       command: >
         kea-admin db-init mysql -u {{ db_user }} -p {{ db_pass }} -n {{ db_name }}
-      args:
-        creates: /var/lib/kea/kea-dhcp4.csv
+      when: tabla_check.stdout == "0"
+      register: kea_init_result
 
     - name: Ajustar parámetros en my.cnf
       blockinfile:

@@ -1,0 +1,14 @@
+$TTL    604800
+@       IN      SOA     ns1.{{ dns_domain }}. {{ soa_email }} (
+                            {{ '%Y%m%d%H' | strftime }} ; Serial
+                            604800     ; Refresh
+                            86400      ; Retry
+                            2419200    ; Expire
+                            604800 )   ; Negative Cache TTL
+
+@       IN      NS      ns1.{{ dns_domain }}.
+@       IN      NS      ns2.{{ dns_domain }}.
+
+{% for record in reverse_records %}
+{{ record.ip_last }}     IN      PTR     {{ record.ptr }}
+{% endfor %}

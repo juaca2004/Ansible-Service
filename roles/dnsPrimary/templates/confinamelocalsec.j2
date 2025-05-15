@@ -1,0 +1,16 @@
+key "tsig-key" {
+    algorithm hmac-sha256;
+    secret "{{ hostvars['192.168.57.10']['tsig_key_clean'] }}";
+};
+
+{% for zone in zones %}
+zone "{{ zone.name }}" {
+    type slave;
+    file "{{ zone.name }}.signed";
+    masters { {{ primary_ip }} key "tsig-key"; };
+};
+{% endfor %}
+
+server {{ primary_ip }} {
+    keys { "tsig-key"; };
+};
