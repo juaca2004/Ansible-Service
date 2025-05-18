@@ -1,0 +1,12 @@
+server 2.co.pool.ntp.org
+server 1.south-america.pool.ntp.org
+server 3.south-america.pool.ntp.org
+
+# Restricciones de seguridad
+restrict default kod nomodify notrap nopeer noquery
+restrict -6 default kod nomodify notrap nopeer noquery
+restrict 127.0.0.1
+restrict ::1
+
+# Permitir clientes locales
+restrict 192.168.88.0 mask 255.255.255.0 nomodify notrap

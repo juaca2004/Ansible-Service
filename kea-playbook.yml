@@ -42,6 +42,7 @@
         allow_transfer: "{{ secondary_ip }}"
 
   roles:
+    - ntpServer
     - dhcp
     - dnsPrimary
 
@@ -81,5 +82,6 @@
         allow_transfer: "{{ secondary_ip }}"
   roles:
       - dnsSecundary
+      - ntpCliente
 
 

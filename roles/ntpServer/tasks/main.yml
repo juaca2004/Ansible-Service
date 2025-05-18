@@ -1,0 +1,24 @@
+---
+- name: Instalar ntp
+  apt:
+    name: ntp
+    state: present
+    update_cache: yes
+    
+- name: Configurar zona horaria
+  ansible.builtin.timezone:
+    name: "UTC"
+
+- name: Desplegar configuración NTP
+  ansible.builtin.template:
+    src: ntp.conf.j2
+    dest: /etc/ntp.conf
+    owner: root
+    group: root
+    mode: 0644
+  
+- name: Reiniciar servicio ntp
+  service:
+    name: ntp
+    state: restarted
+    enabled: yes

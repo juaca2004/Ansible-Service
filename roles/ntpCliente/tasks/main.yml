@@ -1,0 +1,15 @@
+---
+- name: Configurar timesyncd para priorizar DHCP y usar servidor local
+  ansible.builtin.template:
+    src: timesyncd.conf.j2
+    dest: /etc/systemd/timesyncd.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: restart timesyncd
+  ansible.builtin.service:
+     name: systemd-timesyncd
+     state: restarted
+     enabled: yes
+
