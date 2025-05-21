@@ -22,6 +22,9 @@
     reverse_zone: "88.168.192.in-addr.arpa"
     reverse_zone_file: "db.192"
     reverse_zone_file_path: "/etc/bind/zones/{{ reverse_zone_file }}"
+    
+    #NTP
+    redCliente: 192.168.88.0 
 
     records:
       - { name: "ns1", type: "A", ip: "{{ primary_ip }}" }

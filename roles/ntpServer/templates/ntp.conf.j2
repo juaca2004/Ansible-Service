@@ -9,4 +9,4 @@ restrict 127.0.0.1
 restrict ::1
 
 # Permitir clientes locales
-restrict 192.168.88.0 mask 255.255.255.0 nomodify notrap
+restrict {{ redCliente }} mask 255.255.255.0 nomodify notrap
