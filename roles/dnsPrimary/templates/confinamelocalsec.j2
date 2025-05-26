@@ -6,7 +6,7 @@ key "tsig-key" {
 {% for zone in zones %}
 zone "{{ zone.name }}" {
     type slave;
-    file "{{ zone.name }}.signed";
+    file "{{ zone.name }}";
     masters { {{ primary_ip }} key "tsig-key"; };
 };
 {% endfor %}

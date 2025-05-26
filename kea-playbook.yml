@@ -14,11 +14,11 @@
     dns_domain: "reikiavik.xyz"
     zone_file: "db.{{ dns_domain }}"
     zone_file_path: "/etc/bind/zones/{{ zone_file }}"
-    primary_ip: "192.168.88.170" #Servidor primario
-    secondary_ip: "192.168.88.171" #Servidor secundario
-    webserver_ip: "192.168.88.200" #Web server
+    primary_ip: "192.168.88.200" #Servidor primario
+    secondary_ip: "192.168.88.201" #Servidor secundario
+    webserver_ip: "192.168.88.202" #Web server
     clientnetwork: "192.168.88.0/24" #Red de en la cual se puede consultar el dns
-    soa_email: "admin.reikiavik.xyz.com."
+    soa_email: "admin.reikiavik.com."
     reverse_zone: "88.168.192.in-addr.arpa"
     reverse_zone_file: "db.192"
     reverse_zone_file_path: "/etc/bind/zones/{{ reverse_zone_file }}"
@@ -28,9 +28,9 @@
       - { name: "ns2", type: "A", ip: "{{ secondary_ip }}" }
       - { name: "www", type: "A", ip: "{{ webserver_ip }}" }
     reverse_records:
-      - { ip_last: "11", ptr: "ns1.reikiavik.xyz." }
-      - { ip_last: "10", ptr: "ns2.reikiavik.xyz." }
-      - { ip_last: "200", ptr: "www.reikiavik.xyz."}
+      - { ip_last: "200", ptr: "ns1.reikiavik.xyz." }
+      - { ip_last: "201", ptr: "ns2.reikiavik.xyz." }
+      - { ip_last: "202", ptr: "www.reikiavik.xyz."}
     zones:
       - name: "{{ dns_domain }}"
         type: "master"
@@ -54,9 +54,9 @@
     dns_domain: "reikiavik.xyz"
     zone_file: "db.{{ dns_domain }}"
     zone_file_path: "/etc/bind/zones/{{ zone_file }}"
-    primary_ip: "192.168.88.170" #Servidor primario
-    secondary_ip: "192.168.88.171" #Servidor secundario
-    webserver_ip: "192.168.88.200" #Web server
+    primary_ip: "192.168.88.200" #Servidor primario
+    secondary_ip: "192.168.88.201" #Servidor secundario
+    webserver_ip: "192.168.88.202" #Web server
     clientnetwork: "192.168.88.0/24" #Red de en la cual se puede consultar el dns
     soa_email: "admin.reikiavik.xyz.com."
     reverse_zone: "88.168.192.in-addr.arpa"
@@ -68,9 +68,9 @@
       - { name: "ns2", type: "A", ip: "{{ secondary_ip }}" }
       - { name: "www", type: "A", ip: "{{ webserver_ip }}" }
     reverse_records:
-      - { ip_last: "11", ptr: "ns1.reikiavik.xyz." }
-      - { ip_last: "10", ptr: "ns2.reikiavik.xyz." }
-      - { ip_last: "200", ptr: "www.reikiavik.xyz."}
+      - { ip_last: "200", ptr: "ns1.reikiavik.xyz." }
+      - { ip_last: "201", ptr: "ns2.reikiavik.xyz." }
+      - { ip_last: "202", ptr: "www.reikiavik.xyz."}
     zones:
       - name: "{{ dns_domain }}"
         type: "master"
@@ -83,5 +83,3 @@
   roles:
       - dnsSecundary
       - ntpCliente
-
-

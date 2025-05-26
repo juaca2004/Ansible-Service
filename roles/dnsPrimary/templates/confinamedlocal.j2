@@ -6,7 +6,7 @@ key "tsig-key" {
 {% for zone in zones %}
 zone "{{ zone.name }}" {
     type {{ zone.type }};
-    file "{{ zone.file }}.signed";
+    file "{{ zone.file }}";
 };
 {% endfor %}
 
