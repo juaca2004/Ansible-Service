@@ -8,6 +8,10 @@
 - name: Configurar zona horaria
   ansible.builtin.timezone:
     name: "UTC"
+    
+- name: Configurar zona horaria local a America/Bogota
+  ansible.builtin.timezone:
+    name: "America/Bogota"
 
 - name: Desplegar configuración NTP
   ansible.builtin.template:
