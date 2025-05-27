@@ -9,12 +9,6 @@ $TTL    604800
 @       IN      NS      ns1.{{ dns_domain }}.
 @       IN      NS      ns2.{{ dns_domain }}.
 
-{% for record in records %}
-{% if record.type in ["A", "AAAA"] %}
-{{ record.name }}     IN {{ record.type }}     {{ record.ip }}
-{% elif record.type == "MX" %}
-{{ record.name }}     IN MX    {{ record.priority }}    {{ record.value }}
-{% elif record.type == "TXT" %}
-{{ record.name }}     IN TXT   {{ record.value }}
-{% endif %}
+{% for record in reverse_ipv6_records %}
+{{ record.reverse }}.ip6.arpa.     IN      PTR     {{ record.ptr }}
 {% endfor %}

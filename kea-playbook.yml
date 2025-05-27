@@ -14,26 +14,42 @@
     dns_domain: "reikiavik.xyz"
     zone_file: "db.{{ dns_domain }}"
     zone_file_path: "/etc/bind/zones/{{ zone_file }}"
-    primary_ip: "192.168.88.200" #Servidor primario
-    secondary_ip: "192.168.88.201" #Servidor secundario
-    webserver_ip: "192.168.88.202" #Web server
-    clientnetwork: "192.168.88.0/24" #Red de en la cual se puede consultar el dns
+    primary_ip: "192.168.1.200" #Servidor primario
+    secondary_ip: "192.168.1.201" #Servidor secundario
+    webserver_ip: "192.168.1.202" #Web server
+    clientnetwork: "192.168.1.0/24" #Red de en la cual se puede consultar el dns
     soa_email: "admin.reikiavik.com."
-    reverse_zone: "88.168.192.in-addr.arpa"
+    reverse_zone: "1.168.192.in-addr.arpa"
     reverse_zone_file: "db.192"
     reverse_zone_file_path: "/etc/bind/zones/{{ reverse_zone_file }}"
+    webserver_ipv6: "2001:1234:0::23"
+    reverse_ipv6_zone: "0.0.0.0.0.0.0.0.4.3.2.1.1.0.0.2.ip6.arpa"
+    reverse_ipv6_zone_file: "db.ipv6"
+    reverse_ipv6_zone_file_path: "/etc/bind/zones/{{ reverse_ipv6_zone_file }}"
     
     #NTP
-    redCliente: 192.168.88.0 
+    redCliente: 192.168.1.0 
 
     records:
       - { name: "ns1", type: "A", ip: "{{ primary_ip }}" }
+      - { name: "ns1", type: "AAAA", ip: "2001:db8:1::100" }
       - { name: "ns2", type: "A", ip: "{{ secondary_ip }}" }
       - { name: "www", type: "A", ip: "{{ webserver_ip }}" }
+      - { name: "mail", type: "A", ip: "{{ webserver_ip }}" } #Tipo A para el servidor de correos
+      - { name: "@", type: "MX", priority: 10, value: "mail.{{dns_domain}}" } #MX que referencia al mail de arriba 
+      - { name: "@", type: "TXT", value: "\"v=spf1 ip4:{{ webserver_ip }} ~all\"" } #TXT spf = servidores que pueden enviar correo
+      - { name: "default._domainkey", type: "TXT", value: "\"v=DKIM1; k=rsa; p=CLAVE_PUBLICA_DKIM\"" } #DKIM para cartografia de los correos que se envían
+      - { name: "_dmarc", type: "TXT", value: "\"v=DMARC1; p=none; rua=mailto:postmaster@{{dns_domain}}\"" } #DMARC para definir qu hacer con los correos que no pasen dkim ni spf 
+      - { name: "web", type: "AAAA", ip: "2001:1234:0::23" }
+
     reverse_records:
       - { ip_last: "200", ptr: "ns1.reikiavik.xyz." }
       - { ip_last: "201", ptr: "ns2.reikiavik.xyz." }
-      - { ip_last: "202", ptr: "www.reikiavik.xyz."}
+      - { ip_last: "202", ptr: "mail.reikiavik.xyz."}
+
+    reverse_ipv6_records:
+      - {reverse: "0.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0.1.8.b.d.0.1.0.0.2", ptr: "web.reikiavik.xyz."}
+    
     zones:
       - name: "{{ dns_domain }}"
         type: "master"
@@ -43,7 +59,10 @@
         type: "master"
         file: "{{ reverse_zone_file_path }}"
         allow_transfer: "{{ secondary_ip }}"
-
+      - name: "{{ reverse_ipv6_zone }}"
+        type: "master"
+        file: "{{ reverse_ipv6_zone_file_path }}"
+        allow_transfer: "{{ secondary_ip }}"
   roles:
     - ntpServer
     - dhcp
@@ -57,14 +76,17 @@
     dns_domain: "reikiavik.xyz"
     zone_file: "db.{{ dns_domain }}"
     zone_file_path: "/etc/bind/zones/{{ zone_file }}"
-    primary_ip: "192.168.88.200" #Servidor primario
-    secondary_ip: "192.168.88.201" #Servidor secundario
-    webserver_ip: "192.168.88.202" #Web server
-    clientnetwork: "192.168.88.0/24" #Red de en la cual se puede consultar el dns
+    primary_ip: "192.168.1.200" #Servidor primario
+    secondary_ip: "192.168.1.201" #Servidor secundario
+    webserver_ip: "192.168.1.202" #Web server
+    clientnetwork: "192.168.1.0/24" #Red de en la cual se puede consultar el dns
     soa_email: "admin.reikiavik.xyz.com."
-    reverse_zone: "88.168.192.in-addr.arpa"
+    reverse_zone: "1.168.192.in-addr.arpa"
     reverse_zone_file: "db.192"
     reverse_zone_file_path: "/etc/bind/zones/{{ reverse_zone_file }}"
+    reverse_ipv6_zone: "0.0.0.0.0.0.0.0.4.3.2.1.1.0.0.2.ip6.arpa"
+    reverse_ipv6_zone_file: "db.ipv6"
+    reverse_ipv6_zone_file_path: "/etc/bind/zones/{{ reverse_ipv6_zone_file }}"
 
     records:
       - { name: "ns1", type: "A", ip: "{{ primary_ip }}" }
@@ -82,6 +104,10 @@
       - name: "{{ reverse_zone }}"
         type: "master"
         file: "{{ reverse_zone_file_path }}"
+        allow_transfer: "{{ secondary_ip }}"
+      - name: "{{ reverse_ipv6_zone }}"
+        type: "master"
+        file: "{{ reverse_ipv6_zone_file_path }}"
         allow_transfer: "{{ secondary_ip }}"
   roles:
       - dnsSecundary
