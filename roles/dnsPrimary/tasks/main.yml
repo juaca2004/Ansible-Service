@@ -1,144 +1,188 @@
----
-    - name: Instalar BIND9
-      apt:
-        name: bind9
-        state: present
-        update_cache: yes
 
-    - name: Crear carpeta de zonas
-      file:
-        path: /etc/bind/zones
-        state: directory
+- name: Instalar BIND9
+  apt:
+    name: bind9
+    state: present
+    update_cache: yes
 
-    - name: Copiar archivo de zona directa
-      template:
-        src: confizonadirecta.j2
-        dest: "{{ zone_file_path }}"
-        owner: root
-        group: bind
-        mode: '0644'
+- name: Crear carpeta de zonas
+  file:
+    path: /etc/bind/zones
+    state: directory
 
-    - name: Copiar archivo de zona inversa
-      template:
-        src: confizonainversa.j2
-        dest: "{{ reverse_zone_file_path }}"
-        owner: root
-        group: bind
-        mode: '0644'
-        
-    - name: Asegurar que el directorio /etc/bind/keys exista
-      file:
-        path: /etc/bind/keys
-        state: directory
-        owner: bind       
-        group: bind       
-        mode: '0750'     
-        
-    - name: Generar claves ZSK para zona directa
-      command: >
-        dnssec-keygen -a ECDSA256 {{ dns_domain }}
-      args:
-        chdir: /etc/bind/keys
-      register: zsk_key
-      changed_when: "'K{{ dns_domain }}' in zsk_key.stdout"
+- name: Copiar archivo de zona directa
+  template:
+    src: confizonadirecta.j2
+    dest: "{{ zone_file_path }}"
+    owner: root
+    group: bind
+    mode: '0644'
 
-    - name: Generar clave KSK para zona directa
-      command: >
-        dnssec-keygen -a ECDSA256 -f KSK -n ZONE {{ dns_domain }}
-      args:
-        chdir: /etc/bind/keys
-      register: ksk_key
-      changed_when: "'K{{ dns_domain }}' in ksk_key.stdout"
+- name: Copiar archivo de zona inversa
+  template:
+    src: confizonainversa.j2
+    dest: "{{ reverse_zone_file_path }}"
+    owner: root
+    group: bind
+    mode: '0644'
 
-    - name: Generar claves DNSSEC ZSK para zona inversa
-      command: >
-        dnssec-keygen -a ECDSA256 {{ reverse_zone }}
-      args:
-        chdir: /etc/bind/keys
-      register: reverse_zsk_key
-      changed_when: "'K' + reverse_zone in reverse_zsk_key.stdout"
+- name: Copiar archivo de zona inversa ipv6
+  template:
+    src: confizonainversaipv6.j2
+    dest: "{{ reverse_ipv6_zone_file_path }}"
+    owner: root
+    group: bind
+    mode: '0644'
+    
+- name: Asegurar que el directorio /etc/bind/keys exista
+  file:
+    path: /etc/bind/keys
+    state: directory
+    owner: bind       
+    group: bind       
+    mode: '0750'     
 
-    - name: Generar clave KSK para zona inversa
-      command: >
-        dnssec-keygen -a ECDSA256 -f KSK -n ZONE {{ reverse_zone }}
-      args:
-        chdir: /etc/bind/keys
-      register: reverse_ksk_key
-      changed_when: "'K{{ reverse_zone }}' in reverse_ksk_key.stdout"
+#DNSSEC ZONA DIRECTA
+- name: Generar claves ZSK para zona directa
+  command: >
+    dnssec-keygen -a ECDSA256 {{ dns_domain }}
+  args:
+    chdir: /etc/bind/keys
+  register: zsk_key
+  changed_when: "'K{{ dns_domain }}' in zsk_key.stdout"
 
-    - name: Generar clave KSK para zona inversa
-      command: >
-        dnssec-keygen -a ECDSA256 -f KSK -n ZONE {{ reverse_zone }}
-      args:
-        chdir: /etc/bind/keys
-      register: reverse_ksk_key
-      changed_when: "'K{{ reverse_zone }}' in reverse_ksk_key.stdout"
+- name: Generar clave KSK para zona directa
+  command: >
+    dnssec-keygen -a ECDSA256 -f KSK -n ZONE {{ dns_domain }}
+  args:
+    chdir: /etc/bind/keys
+  register: ksk_key
+  changed_when: "'K{{ dns_domain }}' in ksk_key.stdout"
 
-    - name: Agregar claves públicas de la zona directa al archivo de zona DNS
-      ansible.builtin.blockinfile:
-        path:  /etc/bind/zones/{{ zone_file }}
-        block: |
-          $INCLUDE "/etc/bind/keys/{{ zsk_key.stdout | regex_replace('.*K','K') }}.key"
-          $INCLUDE "/etc/bind/keys/{{ ksk_key.stdout | regex_replace('.*K','K') }}.key"
-        marker: ""
+#DNSSEC IPV4 ZONA INVERSA
 
-    - name: Agregar claves públicas de la zona inversa al archivo de zona DNS
-      ansible.builtin.blockinfile:
-        path: /etc/bind/zones/{{ reverse_zone_file }}
-        block: |
-          $TTL 604800
-          $INCLUDE "/etc/bind/keys/{{ reverse_zsk_key.stdout | regex_replace('.*K','K') }}.key"
-          $INCLUDE "/etc/bind/keys/{{ reverse_ksk_key.stdout | regex_replace('.*K','K') }}.key"
-        marker: ""
+- name: Generar claves DNSSEC ZSK para zona inversa
+  command: >
+    dnssec-keygen -a ECDSA256 {{ reverse_zone }}
+  args:
+    chdir: /etc/bind/keys
+  register: reverse_zsk_key
+  changed_when: "'K' + reverse_zone in reverse_zsk_key.stdout"
 
-    - name: Firmar zona directa con DNSSEC
-      command: >
-          dnssec-signzone
-          -o {{ dns_domain }}
-          -N INCREMENT
-          -d /etc/bind/keys
-          /etc/bind/zones/db.{{ dns_domain }}
-      args:
-        chdir: /etc/bind/keys
-      register: signed_zone_directa
+- name: Generar clave KSK para zona inversa
+  command: >
+    dnssec-keygen -a ECDSA256 -f KSK -n ZONE {{ reverse_zone }}
+  args:
+    chdir: /etc/bind/keys
+  register: reverse_ksk_key
+  changed_when: "'K{{ reverse_zone }}' in reverse_ksk_key.stdout"
 
-    - name: Firmar zona inversa con DNSSEC
-      command: >
-        dnssec-signzone -o {{reverse_zone}}
-        -N INCREMENT
-         -d /etc/bind/keys 
-         {{reverse_zone_file_path}}
-      args:
-        chdir: /etc/bind/keys
-      register: signed_zone_inversa
+#DNSSEC IPV6 ZONA INVERSA
+- name: Generar claves DNSSEC ZSK para zona inversa IPv6
+  command: >
+    dnssec-keygen -a ECDSA256 {{ reverse_ipv6_zone }}
+  args:
+    chdir: /etc/bind/keys
+  register: reverse_ipv6_zsk_key
+  changed_when: "'K' + reverse_ipv6_zone in reverse_ipv6_zsk_key.stdout"
 
-    - name: Generar clave TSIG
-      command: tsig-keygen -a hmac-sha256 zona-tsig-key
-      register: tsig_key
-      changed_when: "'Key: ' in tsig_key.stdout"
+- name: Generar clave KSK para zona inversa IPv6
+  command: >
+    dnssec-keygen -a ECDSA256 -f KSK -n ZONE {{ reverse_ipv6_zone }}
+  args:
+    chdir: /etc/bind/keys
+  register: reverse_ipv6_ksk_key
+  changed_when: "'K{{ reverse_ipv6_zone }}' in reverse_ipv6_ksk_key.stdout"
 
-    - name: Extraer clave TSIG limpia
-      set_fact:
-        tsig_key_clean: "{{ (tsig_key.stdout | regex_findall('secret \"(.+?)\";'))[0] }}"
-      when: inventory_hostname == 'serverPrincipal'
+ #AGREGACIÓN DE LLAVES AL ARCHIVO ZONAL
 
-    - name: Configurar zonas en named.conf.local
-      template:
-        src: confinamedlocal.j2
-        dest: /etc/bind/named.conf.local
-        owner: root
-        group: bind
-        mode: '0644'
-        
-    - name: Configurar zonas en named.conf.options
-      template:
-        src: confinamedopt.j2
-        dest: /etc/bind/named.conf.options
-        owner: root
-        group: bind
-        mode: '0644'
-    - name: Reiniciar servicio bind9
-      service:
-        name: bind9
-        state: restarted
-        enabled: yes
+- name: Agregar claves públicas de la zona directa al archivo de zona DNS
+  ansible.builtin.blockinfile:
+    path:  /etc/bind/zones/{{ zone_file }}
+    block: |
+      $INCLUDE "/etc/bind/keys/{{ zsk_key.stdout | regex_replace('.*K','K') }}.key"
+      $INCLUDE "/etc/bind/keys/{{ ksk_key.stdout | regex_replace('.*K','K') }}.key"
+    marker: ""
+
+- name: Agregar claves públicas de la zona inversa al archivo de zona DNS
+  ansible.builtin.blockinfile:
+    path: /etc/bind/zones/{{ reverse_zone_file }}
+    block: |
+      $TTL 604800
+      $INCLUDE "/etc/bind/keys/{{ reverse_zsk_key.stdout | regex_replace('.*K','K') }}.key"
+      $INCLUDE "/etc/bind/keys/{{ reverse_ksk_key.stdout | regex_replace('.*K','K') }}.key"
+    marker: ""
+
+- name: Agregar claves públicas de la zona inversa IPv6 al archivo de zona DNS
+  ansible.builtin.blockinfile:
+    path: /etc/bind/zones/{{ reverse_ipv6_zone_file }}
+    block: |
+      $TTL 604800
+      $INCLUDE "/etc/bind/keys/{{ reverse_ipv6_zsk_key.stdout | regex_replace('.*K','K') }}.key"
+      $INCLUDE "/etc/bind/keys/{{ reverse_ipv6_ksk_key.stdout | regex_replace('.*K','K') }}.key"
+    marker: ""
+ 
+ #FIRMADO DE ZONAS
+- name: Firmar zona directa con DNSSEC
+  command: >
+      dnssec-signzone
+      -o {{ dns_domain }}
+      -N INCREMENT
+      -d /etc/bind/keys
+      /etc/bind/zones/db.{{ dns_domain }}
+  args:
+    chdir: /etc/bind/keys
+  register: signed_zone_directa
+
+- name: Firmar zona inversa con DNSSEC
+  command: >
+    dnssec-signzone -o {{reverse_zone}}
+    -N INCREMENT
+    -d /etc/bind/keys 
+    {{reverse_zone_file_path}}
+  args:
+    chdir: /etc/bind/keys
+  register: signed_zone_inversa
+
+- name: Firmar zona inversa ipv6 con DNSSEC
+  command: >
+    dnssec-signzone -o {{reverse_ipv6_zone}}
+    -N INCREMENT
+    -d /etc/bind/keys 
+    {{reverse_ipv6_zone_file_path}}
+  args:
+    chdir: /etc/bind/keys
+  register: signed_zone_inversaipv6
+
+#TRANSFERENCIA DE ZONAS
+
+- name: Generar clave TSIG
+  command: tsig-keygen -a hmac-sha256 zona-tsig-key
+  register: tsig_key
+  changed_when: "'Key: ' in tsig_key.stdout"
+
+- name: Extraer clave TSIG limpia
+  set_fact:
+    tsig_key_clean: "{{ (tsig_key.stdout | regex_findall('secret \"(.+?)\";'))[0] }}"
+  when: inventory_hostname == 'serverPrincipal'
+
+- name: Configurar zonas en named.conf.local
+  template:
+    src: confinamedlocal.j2
+    dest: /etc/bind/named.conf.local
+    owner: root
+    group: bind
+    mode: '0644'
+    
+- name: Configurar zonas en named.conf.options
+  template:
+    src: confinamedopt.j2
+    dest: /etc/bind/named.conf.options
+    owner: root
+    group: bind
+    mode: '0644'
+- name: Reiniciar servicio bind9
+  service:
+    name: bind9
+    state: restarted
+    enabled: yes
