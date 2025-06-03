@@ -12,13 +12,13 @@
     dns_domain: "reikiavik.xyz"
     zone_file: "db.{{ dns_domain }}"
     zone_file_path: "/etc/bind/zones/{{ zone_file }}"
-    primary_ip: "192.168.1.200" #Servidor primario
+    primary_ip: "192.168.88.200" #Servidor primario
     primary_ip_ipv6: "2001:db8:1::100"
-    secondary_ip: "192.168.1.201" #Servidor secundario
-    webserver_ip: "192.168.1.202" #Web server
-    clientnetwork: "192.168.1.0/24" #Red de en la cual se puede consultar el dns
+    secondary_ip: "192.168.88.201" #Servidor secundario
+    webserver_ip: "192.168.88.202" #Web server
+    clientnetwork: "192.168.88.0/24" #Red de en la cual se puede consultar el dns
     soa_email: "admin.reikiavik.com."
-    reverse_zone: "1.168.192.in-addr.arpa"
+    reverse_zone: "88.168.192.in-addr.arpa"
     reverse_zone_file: "db.192"
     reverse_zone_file_path: "/etc/bind/zones/{{ reverse_zone_file }}"
     reverse_ipv6_zone: "0.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa"
@@ -26,7 +26,7 @@
     reverse_ipv6_zone_file_path: "/etc/bind/zones/{{ reverse_ipv6_zone_file }}"
     
     #NTP
-    redCliente: 192.168.1.0 
+    redCliente: 192.168.88.0 
 
     records:
       - { name: "ns1", type: "A", ip: "{{ primary_ip }}" }
@@ -72,12 +72,12 @@
     dns_domain: "reikiavik.xyz"
     zone_file: "db.{{ dns_domain }}"
     zone_file_path: "/etc/bind/zones/{{ zone_file }}"
-    primary_ip: "192.168.1.200" #Servidor primario
-    secondary_ip: "192.168.1.201" #Servidor secundario
-    webserver_ip: "192.168.1.202" #Web server
-    clientnetwork: "192.168.1.0/24" #Red de en la cual se puede consultar el dns
+    primary_ip: "192.168.88.200" #Servidor primario
+    secondary_ip: "192.168.88.201" #Servidor secundario
+    webserver_ip: "192.168.88.202" #Web server
+    clientnetwork: "192.168.88.0/24" #Red de en la cual se puede consultar el dns
     soa_email: "admin.reikiavik.xyz.com."
-    reverse_zone: "1.168.192.in-addr.arpa"
+    reverse_zone: "88.168.192.in-addr.arpa"
     reverse_zone_file: "db.192"
     reverse_zone_file_path: "/etc/bind/zones/{{ reverse_zone_file }}"
     reverse_ipv6_zone: "0.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa"
