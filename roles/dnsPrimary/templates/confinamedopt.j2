@@ -1,7 +1,7 @@
 options {
     directory "/var/cache/bind";
     
-    dns64 64:ff9b::/96 {
+    dns64 2001:db8:64:ff9b::/96 {
       clients { any; };
       mapped { any; };
       exclude { 127.0.0.1; ::1; };
@@ -34,5 +34,5 @@ acl "clients" {
     127.0.0.1;
     {{ clientnetwork }};
     ::1;
-    ::0; 
+    2001:db8:1::/64; 
 };
