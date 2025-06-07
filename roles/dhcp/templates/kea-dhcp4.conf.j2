@@ -1,22 +1,20 @@
 {
-
-"Dhcp4": {
+  "Dhcp4": {
     "interfaces-config": {
-        "interfaces": ["enp0s8"]
+      "interfaces": [ "enp0s8" ]
     },
-
     "control-socket": {
-        "socket-type": "unix",
-        "socket-name": "/tmp/kea-dhcp4.socket"
+      "socket-type": "unix",
+      "socket-name": "/tmp/kea-dhcp4.socket"
     },
 
     "lease-database": {
-	"type": "mysql",
-	"name": "kea_lease_db",
-	"user": "kea",
-	"password": "admin",
-	"host": "localhost",
-	"port": 3306
+      "type": "mysql",
+      "name": "kea_lease_db",
+      "user": "kea",
+      "password": "admin",
+      "host": "localhost",
+      "port": 3306
     },
 
     "renew-timer": 900,
@@ -24,37 +22,23 @@
     "valid-lifetime": 3600,
 
     "subnet4": [
-        {
-            "subnet": "192.168.88.0/24",
-
-            "pools": [ { "pool": "192.168.88.21 - 192.168.88.29" } ],
-
-            "option-data": [
-                {
-                    "name": "routers",
-                    "data": "192.168.88.1"
-                },
-		{
-			"name": "domain-name-servers",
-			"data":"8.8.8.8, 1.1.1.1"
-		},
-		{
-		    "name": "ntp-servers",
-		    "code": 42,
-		    "data": "192.168.88.170"
-          	}
-            ]
-
-        }
-    ],
-    "option-def": [
       {
-        "name": "ntp-servers",
-        "code": 42,
-        "type": "ipv4-address",
-        "space": "dhcp4"
+        "subnet": "192.168.88.0/24",
+        "pools": [
+          { "pool": "192.168.88.21 - 192.168.88.29" }
+        ],
+        "option-data": [
+          {
+            "name": "routers",
+            "data": "192.168.88.1"
+          },
+          {
+            "name": "domain-name-servers",
+            "data": "192.168.88.170, 192.168.88.171"
+          }
+        ]
       }
     ]
-
   }
 }
+
