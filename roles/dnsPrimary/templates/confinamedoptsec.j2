@@ -1,0 +1,23 @@
+options {
+    directory "/var/cache/bind";
+    
+    dns64 2001:db8:64:ff9b::/96 {
+      clients { any; };
+      mapped { any; };
+      exclude { 127.0.0.1; ::1; };
+    }
+    
+    forwarders {
+        8.8.8.8;
+        8.8.4.4;
+     };
+    dnssec-validation auto;
+    listen-on-v6 { any; };
+};
+
+acl "clients" {
+    127.0.0.1;
+    {{ clientnetwork }};
+    ::1;
+    2001:db8:1::/64; 
+};

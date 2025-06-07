@@ -28,6 +28,13 @@
     owner: root
     group: bind
     mode: '0644'
+- name: Configurar zonas en named.conf.options
+  template:
+    src: confinamedoptsec.j2
+    dest: /etc/bind/named.conf.options
+    owner: root
+    group: bind
+    mode: '0644'
 
 - name: Verificar que la configuración de BIND no tenga errores
   command: named-checkconf
