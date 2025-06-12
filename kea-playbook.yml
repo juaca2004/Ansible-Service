@@ -38,8 +38,8 @@
       - { name: "www", type: "A", ip: "{{ webserver_ip }}" }
       - { name: "mail", type: "A", ip: "{{ smptServer }}" } #Tipo A para el servidor de correos
       - { name: "@", type: "MX", priority: 10, value: "mail.{{dns_domain}}." } #MX que referencia al mail de arriba 
-      - { name: "@", type: "TXT", value: "\"v=spf1 ip4:{{ smptServer }} ~all\"" } #TXT spf = servidores que pueden enviar correo
-      - { name: "default._domainkey", type: "TXT", value: "\"v=DKIM1; k=rsa; p=CLAVE_PUBLICA_DKIM\"" } #DKIM para cartografia de los correos que se envían
+      - { name: "@", type: "TXT", value: "\"v=spf1 ip4:{{ smptServer }} -all\"" } #TXT spf = servidores que pueden enviar correo
+      - { name: "default._domainkey", type: "TXT", value: "\"v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDqdaaE7ao9NGhONNFNZCtbrsZXlm1vdfyzigHtO8XACkMZdh/DxRhiAx1/Ernn3pE32cG4M6eh7D2qHalGdHbDSyVQDavboV8S1Le2n7DaVmbACwq9YcjC7YSxFKNjBlgZM0SNKYh90Z5accnAFGBZWhI3p8CPAkkPclqLC8ObGwIDAQAB\"" } #DKIM para cartografia de los correos que se envían
       - { name: "_dmarc", type: "TXT", value: "\"v=DMARC1; p=none; rua=mailto:postmaster@{{dns_domain}}\"" } #DMARC para definir qu hacer con los correos que no pasen dkim ni spf 
 
     reverse_records:
